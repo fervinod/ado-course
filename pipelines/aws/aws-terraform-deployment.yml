@@ -11,23 +11,34 @@ stages:
   - job: deploy_job
     displayName: terraform job
     steps:
+    # Explicit checkout ensures working directories resolve properly
+    - checkout: self 
+    
     - task: TerraformInstaller@1
       displayName: terraform install
       inputs:
-        terraformVersion: 'latest'
+        terraformVersion: '1.15.7'
+
+    - script: |
+        terraform version
+      displayName: Verify Terraform
+
     - task: TerraformTaskV4@4
       displayName: terraform init
       inputs:
         provider: 'aws'
         command: 'init'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/aws'
-        backendServiceAWS: 'aws-eu-west-1'
+        #  FIX: Point to the repository folder or use the relative path directly
+        workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'  # correct folder path as in repo 
+        backendServiceAWS: 'adoaws'  #service connection 
         backendAWSBucketName: 'terraform'
         backendAWSKey: 'terraform.tfstate'
+
     - task: TerraformTaskV4@4
       displayName: terraform apply
       inputs:
         provider: 'aws'
         command: 'apply'
-        workingDirectory: '$(System.DefaultWorkingDirectory)/aws'
-        environmentServiceNameAWS: 'aws-eu-west-1'
+        #FIX: Match the init working directory path
+        workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'
+        environmentServiceNameAWS: 'adoaws'
