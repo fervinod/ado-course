@@ -29,11 +29,17 @@ stages:
         provider: 'aws'
         command: 'init'
         #  FIX: Point to the repository folder or use the relative path directly
-        workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'  # correct folder path as in repo 
-        backendServiceAWS: 'adoaws'  #service connection 
+        workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'
+        backendServiceAWS: 'adoaws'
         backendAWSBucketName: 'terraform'
         backendAWSKey: 'terraform.tfstate'
-
+    - task: TerraformTask@5
+      displayName: terraform Plan
+      inputs:
+        provider: 'aws'
+        command: 'plan'
+        workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'
+        environmentServiceNameAWS: 'adoaws'
     - task: TerraformTaskV4@4
       displayName: terraform apply
       inputs:
@@ -42,3 +48,11 @@ stages:
         #FIX: Match the init working directory path
         workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'
         environmentServiceNameAWS: 'adoaws'
+    
+    #- task: TerraformTaskV4@4
+    #  displayName: terraform Destroy
+    #  inputs:
+     #  command: 'destroy'
+      #  workingDirectory: '$(Build.SourcesDirectory)/pipelines/aws'
+       # environmentServiceNameAWS: 'adoaws'
+ 
